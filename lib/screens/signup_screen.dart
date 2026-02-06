@@ -1,0 +1,664 @@
+import 'package:flutter/material.dart';
+
+import 'package:go_router/go_router.dart';
+import '../constants/app_constants.dart';
+import '../constants/app_dimensions.dart';
+
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppDimensions().init(context);
+    return Scaffold(
+      backgroundColor: AppConstants.backgroundLight,
+      body: Row(
+        children: [
+          // Left Brand Panel (Desktop/Tablet only)
+          if (!AppDimensions.isMobile)
+            Expanded(
+              flex: 5, // ~45% width
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Background Image
+                  Image.network(
+                    'https://cdn.selldone.com/app/contents/articles/220208bestfreepossoftwareforsmallbusinessesjpgb72d2b70ac5498e55ec1df432ac37f66.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                  // Gradient Overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white.withValues(alpha: 0.9),
+                          Colors.white.withValues(alpha: 0.4),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(48.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Logo
+                        Row(
+                          children: [
+                            Container(
+                              width: AppDimensions.w(
+                                3,
+                              ).clamp(32.0, 48.0), // Responsive icon size
+                              height: AppDimensions.w(3).clamp(32.0, 48.0),
+                              decoration: BoxDecoration(
+                                color: AppConstants.primaryColor,
+                                borderRadius: BorderRadius.circular(
+                                  AppDimensions.radiusS,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.point_of_sale,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              "J's POS",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        const Text(
+                          'Powering modern businesses.',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildFeatureItem('Offline Sync capable'),
+                        _buildFeatureItem('Multi-branch inventory support'),
+                        _buildFeatureItem('Real-time revenue analytics'),
+                        const SizedBox(height: 48),
+                        // Testimonial
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: AppConstants.primaryColor,
+                                    size: 20,
+                                  ),
+                                  Icon(
+                                    Icons.star,
+                                    color: AppConstants.primaryColor,
+                                    size: 20,
+                                  ),
+                                  Icon(
+                                    Icons.star,
+                                    color: AppConstants.primaryColor,
+                                    size: 20,
+                                  ),
+                                  Icon(
+                                    Icons.star,
+                                    color: AppConstants.primaryColor,
+                                    size: 20,
+                                  ),
+                                  Icon(
+                                    Icons.star,
+                                    color: AppConstants.primaryColor,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                '"This POS changed how we manage our inventory entirely. The offline sync saved us during our busiest weekend."',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  ClipOval(
+                                    child: Image.network(
+                                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDeDbaalOKBSEzXpNLeNNzNhxhB2cSVu6iItocknJfV0wqhMXj2OtxoqU5WTrbFV4bSnJ1PARA4zHGZYyPE8G45O8UKWfQEEWeKJAK93Tu5d9-j90t6_r7omPQ153l71mOed_x2CFMJQ95tG_69CBQveWlkU2LF25iPcARhNqE32T_heK8T4k8cWTa3ZMrYzKIsoCIVsHwUU6dWxnzA5RIzpkuDhEZlWyzforLE4JtayuJH9KNRB_QoGnwNLi-xt65Nnq6QiaYxI3cb',
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Jane Doe',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Retail Owner, The Green Loft',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Right Form Panel
+          Expanded(
+            flex: 6, // ~55% width
+            child: Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppDimensions.paddingL,
+                  vertical: AppDimensions.paddingXL,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: AppDimensions.w(90)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Mobile Logo
+                      if (AppDimensions.isMobile)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 32),
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: AppConstants.primaryColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.point_of_sale,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Queen\'s Cafe',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      // Stepper
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Step 1 of 2',
+                            style: TextStyle(
+                              color: AppConstants.primaryColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            'Account Details',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppConstants.primaryColor,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            const Expanded(flex: 1, child: SizedBox()),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Header
+                      const Text(
+                        'Create your account',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Start your 14-day free trial. No credit card required.',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Google Sign in
+                      OutlinedButton.icon(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: Colors.white,
+                          side: BorderSide(color: Colors.grey[300]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          foregroundColor: Colors.grey[700],
+                        ),
+                        icon: Image.network(
+                          'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                          height: 20,
+                          width: 20,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.g_mobiledata),
+                        ),
+                        label: const Text(
+                          'Sign up with Google',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Divider
+                      const Row(
+                        children: [
+                          Expanded(child: Divider()),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'OR CONTINUE WITH EMAIL',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider()),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel('Work Email'),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: _inputDecoration(
+                                hintText: 'you@company.com',
+                                icon: Icons.mail_outlined,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            _buildLabel('Password'),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              decoration: _inputDecoration(
+                                hintText: '••••••••',
+                                icon: Icons.lock_outline,
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            // Strength meter
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow,
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Container(
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Container(
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Container(
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 4.0),
+                              child: Text(
+                                'Weak password. Try adding numbers.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            _buildLabel('Phone Number'),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 12,
+                                  ), // Match input height
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      bottomLeft: Radius.circular(8),
+                                    ),
+                                    color: Colors.transparent,
+                                  ),
+                                  child: const Text(
+                                    'US',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _phoneController,
+                                    decoration:
+                                        _inputDecoration(
+                                          hintText: '+1 (555) 987-6543',
+                                        ).copyWith(
+                                          prefixIcon:
+                                              null, // No icon inside, handled by external widget
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topRight: Radius.circular(8),
+                                                  bottomRight: Radius.circular(
+                                                    8,
+                                                  ),
+                                                ),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[300]!,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topRight: Radius.circular(8),
+                                                  bottomRight: Radius.circular(
+                                                    8,
+                                                  ),
+                                                ),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey[300]!,
+                                            ),
+                                          ),
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 32),
+
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Handle next step
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppConstants.primaryColor,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  'Next Step',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      Center(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          children: [
+                            Text(
+                              'Already have an account? ',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.go('/login'),
+                              child: const Text(
+                                'Log in',
+                                style: TextStyle(
+                                  color: AppConstants.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppConstants.primaryColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.check,
+              size: 14,
+              color: AppConstants.primaryColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(text, style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: Colors.grey[700],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hintText,
+    IconData? icon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: TextStyle(color: Colors.grey[400]),
+      prefixIcon: icon != null ? Icon(icon, color: Colors.grey[400]) : null,
+      suffixIcon: suffixIcon,
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(color: AppConstants.primaryColor, width: 2),
+      ),
+      filled: true,
+      fillColor: Colors.white,
+    );
+  }
+}
