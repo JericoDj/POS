@@ -5,26 +5,29 @@ class AppConstants {
 
   // Colors
   // Colors
-  static const Color primaryColor = Color(
-    0xFF27537A,
-  ); // Dark Steel Blue (From Image)
-  static const Color secondaryColor = Color(
-    0xFF9BC4DB,
-  ); // Light Blue (From Image)
-  static const Color accentColor = Color(
-    0xFFF2C905,
-  ); // Gold/Yellow (From Image)
+  static const Color primaryColor = Color(0xFF376184); // Deep Steel Blue
+  static const Color secondaryColor = Color(0xFF81ADBC); // Muted Teal
+  static const Color accentColor = Color(0xFFE3B23C); // Mustard Gold
 
   // Backgrounds
-  static const Color backgroundLight = Color(0xFFFFFFFF); // White (From Image)
+  static const Color backgroundLight = Color(0xFFFFFFFF); // White
   static const Color backgroundDark = Color(
-    0xFF6B6C6E,
-  ); // Grey (From Image) - used as dark bg/neutral
+    0xFFF8FAFB,
+  ); // Secondary Panel / Light Grey-Blue
 
   // Text Colors
-  static const Color slate900 = Color(0xFF27537A); // Using Primary for headings
+  static const Color slate900 = Color(0xFF376184); // Headings (Primary)
 
-  static const Color slate800 = Color(0xFF1E293B); // #1e293b
-  static const Color slate500 = Color(0xFF64748B); // #64748b
+  static const Color slate800 = Color(0xFF6B6C6E); // Body Text (Dark Neutral)
+  static const Color slate500 = Color(0xFF9CA3AF); // Muted Text
   static const Color slate400 = Color(0xFF94A3B8);
+
+  // Shadows
+  static List<BoxShadow> defaultShadow = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.08),
+      blurRadius: 30,
+      offset: const Offset(0, 10),
+    ),
+  ];
 }

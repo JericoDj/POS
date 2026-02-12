@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A), // Slate 900
+                      color: AppConstants.slate900,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -100,14 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: Border.all(
                         color: const Color(0xFFF1F5F9),
                       ), // Slate 100
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 50,
-                          offset: const Offset(0, 25),
-                          spreadRadius: -12,
-                        ),
-                      ],
+                      boxShadow: AppConstants.defaultShadow,
                     ),
                     child: Column(
                       children: [
@@ -126,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF0F172A),
+                                    color: AppConstants.slate900,
                                   ),
                                 ),
                                 const SizedBox(height: 8),

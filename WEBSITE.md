@@ -1,69 +1,188 @@
-# Leo's POS - Application & Design Specification
+# Leo's POS – Application & Design Specification
 
 ## 📱 Application Overview
-**Name:** Queen's Cafe (Internal Project Name: Leos POS)
-**Type:** Tablet-first Point of Sale (POS) System
-**Platforms:** Android, iOS, Web (Responsive)
-**Core Tech:** Flutter, Provider, GoRouter
 
-## 🎨 Design System
+*   **Name:** Queen’s Cafe (Internal: Leo’s POS)
+*   **Type:** Tablet-first Point of Sale (POS) System
+*   **Platforms:** Android, iOS, Web (Responsive)
+*   **Core Tech:** Flutter, Provider, GoRouter
 
-### Color Palette
-The app uses a professional, high-trust palette inspired by a Steel Blue and Gold theme.
+---
 
-*   **Primary**: `#27537A` (Dark Steel Blue) - Used for primary actions, headers, and branding.
-*   **Secondary**: `#9BC4DB` (Light Blue) - Used for backgrounds, secondary buttons, and accents.
-*   **Accent**: `#F2C905` (Gold/Yellow) - Used for highlights, call-to-actions, and warnings.
-*   **Backgrounds**:
-    *   Light: `#FFFFFF` (White)
-    *   Dark: `#6B6C6E` (Neutral Grey)
-*   **Typography / Text**:
-    *   Heading: `#27537A` (Dark Steel Blue)
-    *   Body: `#6B6C6E` (Dark Grey)
-    *   Muted: `#94A3B8` (Slate 400)
+# 🎨 Design System
 
-### 📐 Layout & Responsiveness
-The UI is built to be responsive using a custom `AppDimensions` utility.
+## 🎨 Color Palette
 
-*   **Breakpoints**:
-    *   **Mobile**: < 600px width
-    *   **Tablet**: 600px - 1199px width
-    *   **Desktop**: >= 1200px width
-*   **Orientation**: Optimized for Landscape (Tablet/Desktop) but supports Portrait (Login/Mobile).
+A calm, professional palette using neutral greys, muted teal, deep steel blue, and warm mustard gold.
 
-### 🧩 UI Components & Styling
+### Primary Colors
 
-#### Cards & Containers
-*   **Border Radius**:
-    *   Small: 8px
-    *   Medium: 12px
-    *   Large: 16px
-*   **Shadows**: Soft, diffused shadows for depth.
-    *   *Example*: `BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 50, offset: Offset(0, 25))`
-*   **Borders**: Subtle borders using Slate 100/200 (`#F1F5F9` / `#E2E8F0`).
+| Role      | Color           | Hex       | Usage                                                          |
+| :-------- | :-------------- | :-------- | :------------------------------------------------------------- |
+| Primary   | Deep Steel Blue | `#376184` | Primary buttons, navigation highlights, active states, headers |
+| Secondary | Muted Teal      | `#81ADBC` | Secondary backgrounds, info cards, charts                      |
+| Accent    | Mustard Gold    | `#E3B23C` | CTAs, warnings, revenue highlights, badges                     |
 
-#### Inputs
-*   **Background**: `#F8FAFC` (Slate 50)
-*   **Border**: `#E2E8F0` (Slate 200) default, Primary Color on focus.
-*   **Height**: Generous padding (16px vertical).
+### Neutral Colors
 
-#### Buttons
-*   **Primary**: Solid background (`#330DF2`), White text, Medium Radius (12px).
-*   **Outlined**: White background, Slate Text, Slate 200 Border.
+| Role          | Hex       | Usage             |
+| :------------ | :-------- | :---------------- |
+| Dark Neutral  | `#6B6C6E` | Body text         |
+| Light Neutral | `#D0D0D0` | Borders, dividers |
+| White         | `#FFFFFF` | Surfaces          |
+| Border Light  | `#E5E7EB` | Card borders      |
+| Muted Text    | `#9CA3AF` | Secondary text    |
 
-## 🖼️ Key Screens
+### Status Colors
 
-### Login Screen
-*   **Background**: Full-screen image with a Blur Filter (`sigmaX: 2.0`, `sigmaY: 2.0`) and White overlay (80% opacity).
-*   **Center Card**:
-    *   Floating white card with deep shadow.
-    *   **Logo**: 48x48px container, Primary color, white icon (`storefront`).
-    *   **Fields**: Email, Password (with visibility toggle).
-    *   **Actions**: "Remember me" checkbox, "Forgot Password?" link.
-    *   **Social**: "Sign in with Google" (Outlined button).
-*   **Decorative**: Bottom gradient strip (Primary -> Indigo 500 -> Primary).
+| Status  | Color     |
+| :------ | :-------- |
+| Success | `#16A34A` |
+| Warning | `#E3B23C` |
+| Error   | `#DC2626` |
+| Info    | `#81ADBC` |
 
-### Dashboard (Planned)
-*   **Layout**: Sidebar navigation (collapsible on mobile) + Main Content Area.
-*   **Header**: Search bar, User profile, Notifications.
-*   **Grid**: Responsive grid for stats cards and menu items.
+---
+
+## 🖋 Typography
+
+| Element             | Color     |
+| :------------------ | :-------- |
+| Headings            | `#376184` |
+| Body Text           | `#6B6C6E` |
+| Muted Text          | `#9CA3AF` |
+| Accent Text on Gold | `#1F2937` |
+
+---
+
+# 📐 Layout & Responsiveness
+
+### Breakpoints
+
+| Device  | Width            |
+| :------ | :--------------- |
+| Mobile  | < 600px          |
+| Tablet  | 600px – 1199px   |
+| Desktop | ≥ 1200px         |
+
+**Optimized primarily for:**
+*   Landscape tablet POS
+*   Desktop admin usage
+*   Mobile login & quick access
+
+---
+
+# 🧩 UI Components
+
+## 🪟 Cards & Containers
+
+### Border Radius
+*   Small: 8px
+*   Medium: 12px
+*   Large: 16px
+
+### Shadows
+
+Soft, diffused elevation used for cards and floating containers.
+
+**Shadow Spec:**
+
+- Color: Black at 8% opacity
+- Blur Radius: 30
+- Offset: 0px horizontal, 10px vertical
+
+### Backgrounds
+| Component       | Color                  |
+| :-------------- | :--------------------- |
+| Primary Surface | `#FFFFFF`              |
+| Secondary Panel | `#F8FAFB`              |
+| Highlight Panel | Light tint of `#81ADBC`|
+
+## 🔤 Inputs
+
+| Property       | Value             |
+| :------------- | :---------------- |
+| Background     | `#F8FAFB`         |
+| Border Default | `#D0D0D0`         |
+| Border Focus   | `#376184`         |
+| Radius         | 12px              |
+| Padding        | 16px vertical     |
+
+## 🔘 Buttons
+
+### Primary Button
+*   **Background:** `#376184`
+*   **Text:** `#FFFFFF`
+*   **Radius:** 12px
+*   **Hover:** Slightly darker blue
+*   **Disabled:** 40% opacity
+
+### Secondary Button
+*   **Background:** `#81ADBC`
+*   **Text:** `#1F2937`
+
+### Accent Button (CTA)
+*   **Background:** `#E3B23C`
+*   **Text:** `#1F2937`
+*   **Usage:** Upgrade, Subscribe, Key Actions
+
+### Outlined Button
+*   **Background:** `#FFFFFF`
+*   **Border:** `#D0D0D0`
+*   **Text:** `#376184`
+
+---
+
+# 🖼 Key Screens
+
+## 🔐 Login Screen
+
+### Background
+*   Full-screen image with Blur effect.
+*   White overlay (85% opacity).
+*   Optional subtle blue tint overlay.
+
+### Center Card
+*   White background, 16px border radius, Soft shadow.
+*   Centered layout.
+
+### Logo Container
+*   Background: `#376184`
+*   Icon: White
+*   Size: 48x48px, Radius: 12px
+
+### Decorative Elements
+*   Subtle bottom divider in muted teal.
+*   No heavy gradients.
+
+## 📊 Dashboard
+
+### Layout
+*   Sidebar navigation (collapsible on mobile).
+*   Header bar with search & profile.
+*   Main grid layout.
+
+### Sidebar
+*   **Background:** White
+*   **Active Item:** Light tint of `#81ADBC`
+*   **Active Icon/Text:** `#376184`
+*   **Hover:** Light grey background
+
+### Charts
+*   **Primary Data:** `#376184`
+*   **Secondary Data:** `#81ADBC`
+*   **Highlight:** `#E3B23C`
+*   **Gridlines:** `#E5E7EB`
+
+---
+
+# 🎯 Visual Tone
+
+The design system emphasizes:
+*   **Calm professionalism**
+*   **Retail & café friendliness**
+*   **Modern SaaS clarity**
+*   **Soft shadows & subtle depth**
+*   **Trust-focused visual hierarchy**
+
+*This palette removes heavy indigo tones and replaces them with a balanced blue–teal–gold system suitable for commercial POS environments.*
