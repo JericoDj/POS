@@ -243,7 +243,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 const Text(
-                                  'Queen\'s Cafe',
+                                  'Leo\'s POS',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,

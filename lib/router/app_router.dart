@@ -5,7 +5,7 @@ import '../screens/signup_screen.dart';
 import '../screens/login_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/login',
   routes: [
     GoRoute(
       path: '/',
