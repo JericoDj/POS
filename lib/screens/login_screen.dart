@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import 'dart:ui'; // For ImageFilter
 import '../constants/app_constants.dart';
 import '../constants/app_dimensions.dart';
@@ -223,33 +225,75 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(height: 24),
 
                                 // Sign In Button
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Handle Sign In
-                                    context.go('/');
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppConstants.primaryColor,
-                                    foregroundColor: Colors.white,
-                                    elevation: 4,
-                                    shadowColor: AppConstants.primaryColor
-                                        .withValues(alpha: 0.25),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: AppDimensions.paddingM,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.radiusM,
+                                Consumer<AuthProvider>(
+                                  builder: (context, provider, child) {
+                                    return ElevatedButton(
+                                      onPressed: provider.isLoading
+                                          ? null
+                                          : () async {
+                                              if (_formKey.currentState!
+                                                  .validate()) {
+                                                try {
+                                                  await provider.login(
+                                                    _emailController.text
+                                                        .trim(),
+                                                    _passwordController.text
+                                                        .trim(),
+                                                  );
+                                                  if (context.mounted) {
+                                                    context.go('/');
+                                                  }
+                                                } catch (e) {
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          'Login failed: ${e.toString().replaceAll('Exception:', '')}',
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              }
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppConstants.primaryColor,
+                                        foregroundColor: Colors.white,
+                                        elevation: 4,
+                                        shadowColor: AppConstants.primaryColor
+                                            .withValues(alpha: 0.25),
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: AppDimensions.paddingM,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            AppDimensions.radiusM,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Sign In',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                      child: provider.isLoading
+                                          ? const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Sign In',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                    );
+                                  },
                                 ),
                                 const SizedBox(height: 16),
 

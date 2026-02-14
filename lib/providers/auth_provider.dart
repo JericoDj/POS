@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 
-class MainProvider extends ChangeNotifier {
+class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
   UserModel? _user;
   String? _token;
@@ -14,7 +14,7 @@ class MainProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _token != null;
 
-  MainProvider() {
+  AuthProvider() {
     _init();
   }
 

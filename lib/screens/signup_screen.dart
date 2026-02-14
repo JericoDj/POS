@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_dimensions.dart';
 
@@ -15,6 +17,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   bool _obscurePassword = true;
 
@@ -22,6 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -372,6 +376,22 @@ class _SignupScreenState extends State<SignupScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            _buildLabel('Full Name'),
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: _inputDecoration(
+                                hintText: 'John Doe',
+                                icon: Icons.person_outline,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your full name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
                             _buildLabel('Work Email'),
                             TextFormField(
                               controller: _emailController,
@@ -528,31 +548,81 @@ class _SignupScreenState extends State<SignupScreen> {
 
                             const SizedBox(height: 32),
 
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Handle next step
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppConstants.primaryColor,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
+                            Consumer<AuthProvider>(
+                              builder: (context, provider, child) {
+                                return SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: provider.isLoading
+                                        ? null
+                                        : () async {
+                                            if (_formKey.currentState!
+                                                .validate()) {
+                                              try {
+                                                await provider.register(
+                                                  email: _emailController.text
+                                                      .trim(),
+                                                  password: _passwordController
+                                                      .text
+                                                      .trim(),
+                                                  displayName: _nameController
+                                                      .text
+                                                      .trim(),
+                                                  phoneNumber: _phoneController
+                                                      .text
+                                                      .trim(),
+                                                );
+                                                if (context.mounted) {
+                                                  context.go('/');
+                                                }
+                                              } catch (e) {
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Registration failed: ${e.toString().replaceAll('Exception:', '')}',
+                                                      ),
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            }
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          AppConstants.primaryColor,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: provider.isLoading
+                                        ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Create Account',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Text(
-                                  'Next Step',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),

@@ -7,6 +7,11 @@ import 'home_sections/inventory_section.dart';
 import 'home_sections/customers_section.dart';
 import 'home_sections/settings_section.dart';
 import 'home_sections/dashboard_header.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../providers/auth_provider.dart';
+import '../providers/business_provider.dart';
+import '../models/business_model.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -24,10 +29,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     AppDimensions().init(context);
 
-    return Scaffold(
-      backgroundColor: AppConstants.backgroundLight,
-      body: SafeArea(
-        child: Column(
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppConstants.backgroundLight,
+        body: Column(
           children: [
             // Top Header (App Bar)
             const DashboardHeader(),
@@ -94,22 +99,192 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           const SizedBox(height: 16),
           // Header / Toggle Area
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             child: Row(
               mainAxisAlignment: _isCollapsed
                   ? MainAxisAlignment.center
                   : MainAxisAlignment.spaceBetween,
               children: [
                 if (!_isCollapsed)
-                  const Text(
-                    "Queen's Cafe",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppConstants.slate800,
-                      fontFamily: 'Inter',
+                  Expanded(
+                    child: Consumer<BusinessProvider>(
+                      builder: (context, businessProvider, child) {
+                        return PopupMenuButton<dynamic>(
+                          offset: const Offset(0, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: Colors.grey.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey.withValues(alpha: 0.05),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: AppConstants.primaryColor,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    (businessProvider.currentBusiness?.name ??
+                                            AppConstants.appName)[0]
+                                        .toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    businessProvider.currentBusiness?.name ??
+                                        AppConstants.appName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppConstants.slate800,
+                                      fontFamily: 'Inter',
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 16,
+                                  color: AppConstants.slate500,
+                                ),
+                              ],
+                            ),
+                          ),
+                          onSelected: (value) {
+                            if (value is BusinessModel) {
+                              businessProvider.switchBusiness(value);
+                            } else if (value == 'new_org') {
+                              context.push('/business/create');
+                            } else if (value == 'settings') {
+                              context.push('/profile');
+                            } else if (value == 'logout') {
+                              context.read<AuthProvider>().logout();
+                              context.go('/login');
+                            }
+                          },
+                          itemBuilder: (context) {
+                            return [
+                              ...businessProvider.businesses.map(
+                                (business) => PopupMenuItem(
+                                  value: business,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          business.name.isNotEmpty
+                                              ? business.name[0].toUpperCase()
+                                              : '?',
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          business.name,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (business.id ==
+                                          businessProvider.currentBusiness?.id)
+                                        const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: AppConstants.primaryColor,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const PopupMenuDivider(),
+                              const PopupMenuItem(
+                                value: 'new_org',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.add,
+                                      size: 20,
+                                      color: AppConstants.slate500,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text('New Organization'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'settings',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.settings,
+                                      size: 20,
+                                      color: AppConstants.slate500,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text('Account Settings'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuDivider(),
+                              const PopupMenuItem(
+                                value: 'logout',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.logout,
+                                      size: 20,
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Logout',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ];
+                          },
+                        );
+                      },
                     ),
                   ),
+                if (!_isCollapsed) const SizedBox(width: 8),
                 InkWell(
                   onTap: () => setState(() => _isCollapsed = !_isCollapsed),
                   borderRadius: BorderRadius.circular(8),
@@ -246,11 +421,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         ? primaryColor
         : (isDestructive ? Colors.red.shade600 : AppConstants.slate500);
     final bgColor = isSelected
-        ? primaryColor.withOpacity(0.1)
+        ? primaryColor.withValues(alpha: 0.1)
         : (isDestructive ? Colors.red.shade50 : Colors.transparent);
 
     return InkWell(
-      onTap: () => setState(() => _selectedIndex = index),
+      onTap: () {
+        if (index == 6) {
+          // Logout
+          context.read<AuthProvider>().logout();
+          context.go('/login');
+        } else {
+          setState(() => _selectedIndex = index);
+        }
+      },
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

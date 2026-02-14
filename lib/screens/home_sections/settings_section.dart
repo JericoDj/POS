@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../constants/app_constants.dart';
 
 class SettingsSection extends StatefulWidget {
@@ -32,14 +33,14 @@ class _SettingsSectionState extends State<SettingsSection> {
           Expanded(
             child: ListView(
               children: [
-                _buildSectionTitle('Profile'),
+                _buildSectionTitle('Account'),
                 _buildSettingsCard(
                   children: [
                     _buildListTile(
                       icon: Icons.person_outline,
                       title: 'Edit Profile',
                       subtitle: 'Change your name, email, and profile picture',
-                      onTap: () {},
+                      onTap: () => context.push('/profile'),
                     ),
                     const Divider(height: 1, color: Color(0xFFF1F5F9)),
                     _buildListTile(
@@ -47,6 +48,25 @@ class _SettingsSectionState extends State<SettingsSection> {
                       title: 'Change Password',
                       subtitle: 'Update your security credentials',
                       onTap: () {},
+                    ),
+                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    _buildListTile(
+                      icon: Icons.notifications_outlined,
+                      title: 'Notifications',
+                      subtitle: 'Manage your alert preferences',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                _buildSectionTitle('Business'),
+                _buildSettingsCard(
+                  children: [
+                    _buildListTile(
+                      icon: Icons.add_business_outlined,
+                      title: 'Create Business',
+                      subtitle: 'Register a new business and become owner',
+                      onTap: () => context.push('/business/create'),
                     ),
                   ],
                 ),

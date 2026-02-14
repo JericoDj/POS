@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/business_provider.dart';
 import '../../constants/app_constants.dart';
 
 class DashboardHeader extends StatelessWidget {
@@ -38,10 +40,25 @@ class DashboardHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
 
-                Text(      AppConstants.appName, style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppConstants.slate800,
-                )),
+                Text(
+                  AppConstants.appName,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppConstants.slate800,
+                  ),
+                ),
+
+                // Consumer<BusinessProvider>(
+                //   builder: (context, provider, child) {
+                //     return Text(
+                //       provider.currentBusiness?.name ?? AppConstants.appName,
+                //       style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                //         fontWeight: FontWeight.bold,
+                //         color: AppConstants.slate800,
+                //       ),
+                //     );
+                //   },
+                // ),
                 const SizedBox(width: 32),
 
                 // Search Bar (Hidden on small screens - simplified for Flutter)
