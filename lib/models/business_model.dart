@@ -4,7 +4,9 @@ class BusinessModel {
   final String address;
   final String contact;
   final String type;
+  final String? status;
   final Map<String, dynamic>? settings;
+  final Map<String, dynamic>? subscription;
   final String? ownerId;
 
   BusinessModel({
@@ -13,7 +15,9 @@ class BusinessModel {
     required this.address,
     required this.contact,
     required this.type,
+    this.status,
     this.settings,
+    this.subscription,
     this.ownerId,
   });
 
@@ -24,7 +28,11 @@ class BusinessModel {
       address: json['address'] ?? '',
       contact: json['contact'] ?? '',
       type: json['type'] ?? '',
+      status: json['status'],
       settings: json['settings'],
+      subscription: json['subscription'] != null
+          ? Map<String, dynamic>.from(json['subscription'])
+          : null,
       ownerId: json['ownerId'],
     );
   }
@@ -36,7 +44,9 @@ class BusinessModel {
       'address': address,
       'contact': contact,
       'type': type,
+      'status': status,
       'settings': settings,
+      'subscription': subscription,
       'ownerId': ownerId,
     };
   }

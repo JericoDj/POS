@@ -3,10 +3,12 @@ import '../../constants/app_constants.dart';
 import '../../constants/app_dimensions.dart';
 import '../../models/product_model.dart';
 import '../../models/cart_model.dart';
-import '../../models/category_model.dart';
+
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/sales_provider.dart';
+import '../../models/sale_model.dart';
 
 class SalesSection extends StatefulWidget {
   const SalesSection({super.key});
@@ -60,6 +62,60 @@ class _SalesSectionState extends State<SalesSection> {
     });
   }
 
+  Future<void> _processCheckout() async {
+    if (_cart.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Cart is empty')));
+      return;
+    }
+
+    if (_total.isNaN || _total.isInfinite) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Error: Invalid total amount. Please check product prices.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final saleItems = _cart.map((cartItem) {
+        return SaleItem(
+          productId: cartItem.product.id,
+          productName: cartItem.product.name,
+          quantity: cartItem.quantity,
+          price: cartItem.product.price,
+        );
+      }).toList();
+
+      final sale = Sale(
+        items: saleItems,
+        totalAmount: _total,
+        paymentMethod: 'cash', // Default to cash for now
+      );
+
+      await context.read<SalesProvider>().createSale(sale);
+
+      if (mounted) {
+        _clearCart();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sale processed successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error processing sale: $e')));
+      }
+    }
+  }
+
   double get _subtotal => _cart.fold(0, (sum, item) => sum + item.total);
   double get _tax => _subtotal * 0.0825;
   double get _total => _subtotal + _tax;
@@ -96,6 +152,18 @@ class _SalesSectionState extends State<SalesSection> {
     return Consumer<CategoryProvider>(
       builder: (context, categoryProvider, child) {
         final categories = categoryProvider.categories;
+        // Reset selected category if it's no longer in the list
+        if (_selectedCategoryId != null &&
+            !categories.any((c) => c.id == _selectedCategoryId)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _selectedCategoryId = null;
+              });
+            }
+          });
+        }
+
         return Container(
           color: AppConstants.backgroundLight.withValues(
             alpha: 0.95,
@@ -113,6 +181,7 @@ class _SalesSectionState extends State<SalesSection> {
                     setState(() {
                       _selectedCategoryId = null;
                     });
+                    context.read<ProductProvider>().fetchProducts();
                   },
                   icon: Icons.grid_view,
                 ),
@@ -126,6 +195,9 @@ class _SalesSectionState extends State<SalesSection> {
                       setState(() {
                         _selectedCategoryId = cat.id;
                       });
+                      context.read<ProductProvider>().fetchProducts(
+                        categoryId: cat.id,
+                      );
                     },
                     icon: Icons
                         .category, // You could add icons to CategoryModel later
@@ -300,23 +372,41 @@ class _SalesSectionState extends State<SalesSection> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              product.details,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppConstants.slate500,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product.details,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppConstants.slate500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$${product.price.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppConstants.primaryColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            '\$${product.price.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppConstants.primaryColor,
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () => _addToCart(product),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppConstants.primaryColor,
+                              foregroundColor: Colors.white,
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(8),
+                              minimumSize: Size.zero,
                             ),
+                            child: const Icon(Icons.add, size: 20),
                           ),
                         ],
                       ),
@@ -545,7 +635,9 @@ class _SalesSectionState extends State<SalesSection> {
                   width: double.infinity,
                   height: 56, // py-4 approx
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: context.watch<SalesProvider>().isLoading
+                        ? null
+                        : _processCheckout,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppConstants.primaryColor,
                       foregroundColor: Colors.white,
@@ -559,15 +651,27 @@ class _SalesSectionState extends State<SalesSection> {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
-                          'Checkout',
-                          style: TextStyle(
+                          context.watch<SalesProvider>().isLoading
+                              ? 'Processing...'
+                              : 'Checkout',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Icon(Icons.arrow_forward),
+                        if (context.watch<SalesProvider>().isLoading)
+                          const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        else
+                          const Icon(Icons.arrow_forward),
                       ],
                     ),
                   ),

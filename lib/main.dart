@@ -6,6 +6,7 @@ import 'providers/auth_provider.dart';
 import 'providers/business_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/product_provider.dart';
+import 'providers/sales_provider.dart';
 import 'constants/app_constants.dart';
 
 import 'package:flutter/services.dart';
@@ -50,6 +51,15 @@ class MyApp extends StatelessWidget {
           create: (_) => ProductProvider(),
           update: (context, auth, business, product) =>
               product!..update(auth, business.currentBusiness?.id),
+        ),
+        ChangeNotifierProxyProvider2<
+          AuthProvider,
+          BusinessProvider,
+          SalesProvider
+        >(
+          create: (_) => SalesProvider(),
+          update: (context, auth, business, sales) =>
+              sales!..update(auth.token, business.currentBusiness?.id),
         ),
       ],
       child: Builder(

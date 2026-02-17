@@ -24,9 +24,7 @@ class BusinessProvider extends ChangeNotifier {
     if (_token != token) {
       _token = token;
       if (_token != null) {
-        // Fetch all businesses and current profile
         fetchAllBusinesses(_token!);
-        fetchBusinessProfile(_token!);
       } else {
         clearBusiness();
       }
@@ -60,13 +58,29 @@ class BusinessProvider extends ChangeNotifier {
 
   Future<void> fetchAllBusinesses(String token) async {
     try {
-      // Don't set global loading here to avoid blocking UI if it's a background fetch
-      // or set separate loading state if needed. For now, we'll just notify listeners when done.
-      final businesses = await _businessService.getAllBusinesses(token);
+      final businesses = await _businessService.getBusinessProfile(token);
       _businesses = businesses;
+
+      if (_businesses.isNotEmpty) {
+        // If current business is null or not in the new list, select the first one
+        if (_currentBusiness == null ||
+            !_businesses.any((b) => b.id == _currentBusiness!.id)) {
+          _currentBusiness = _businesses.first;
+        } else {
+          // Update current business with fresh data
+          _currentBusiness = _businesses.firstWhere(
+            (b) => b.id == _currentBusiness!.id,
+          );
+        }
+        await _box.write('current_business', _currentBusiness!.toJson());
+      } else {
+        _currentBusiness = null;
+        await _box.remove('current_business');
+      }
+
       await _box.write(
         'all_businesses',
-        businesses.map((e) => e.toJson()).toList(),
+        _businesses.map((e) => e.toJson()).toList(),
       );
       notifyListeners();
     } catch (e) {
@@ -80,34 +94,6 @@ class BusinessProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchBusinessProfile(String token) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      // If we already have a selected business from storage, we might want to refresh it
-      // or if we have none, we might want to select the first one from the list or fetch specific profile.
-      // For now, keep existing behavior of fetching specific profile if endpoint exists,
-      // but typically "getBusinessProfile" implies getting *the* business for single-tenant
-      // or *a* default business.
-      // If the backend returns the "active" business context, that's good.
-      // If we are moving to multi-business, we might need to be careful here.
-      // Let's assume fetchBusinessProfile returns the last active or default business.
-
-      final business = await _businessService.getBusinessProfile(token);
-      _currentBusiness = business;
-      await _box.write('current_business', business.toJson());
-    } catch (e) {
-      print('Error fetching business profile: $e');
-      // If fetch fails (e.g. 404), it might mean no business exists yet.
-      // We shouldn't rethrow if we want the UI to handle "no business" state gracefully.
-      // rethrow;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
   Future<void> createBusiness(String token, Map<String, dynamic> data) async {
     try {
       _isLoading = true;
@@ -116,7 +102,6 @@ class BusinessProvider extends ChangeNotifier {
       final business = await _businessService.createBusiness(token, data);
       _currentBusiness = business;
       await _box.write('current_business', business.toJson());
-      // Refresh the list of businesses
       await fetchAllBusinesses(token);
     } catch (e) {
       rethrow;
@@ -138,6 +123,7 @@ class BusinessProvider extends ChangeNotifier {
       final business = await _businessService.updateBusiness(token, id, data);
       _currentBusiness = business;
       await _box.write('current_business', business.toJson());
+      await fetchAllBusinesses(token);
     } catch (e) {
       rethrow;
     } finally {
@@ -154,7 +140,6 @@ class BusinessProvider extends ChangeNotifier {
       await _businessService.deleteBusiness(token, id);
       await fetchAllBusinesses(token);
 
-      // If deleted business was current, clear it or switch to another
       if (_currentBusiness?.id == id) {
         if (_businesses.isNotEmpty) {
           await switchBusiness(_businesses.first);

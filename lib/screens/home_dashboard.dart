@@ -140,8 +140,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
-                                    (businessProvider.currentBusiness?.name ??
-                                            AppConstants.appName)[0]
+                                    (businessProvider
+                                                    .currentBusiness
+                                                    ?.name
+                                                    .isNotEmpty ==
+                                                true
+                                            ? businessProvider
+                                                  .currentBusiness!
+                                                  .name
+                                            : AppConstants.appName)[0]
                                         .toUpperCase(),
                                     style: const TextStyle(
                                       color: Colors.white,
@@ -174,41 +181,50 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           onSelected: (value) {
                             if (value is BusinessModel) {
                               businessProvider.switchBusiness(value);
-                            } else if (value == 'new_org') {
-                              context.push('/business/create');
                             } else if (value == 'settings') {
                               context.push('/profile');
-                            } else if (value == 'logout') {
-                              context.read<AuthProvider>().logout();
-                              context.go('/login');
+                            } else if (value == 'new_org') {
+                              context.push('/business/manage');
                             }
                           },
                           itemBuilder: (context) {
                             return [
                               ...businessProvider.businesses.map(
-                                (business) => PopupMenuItem(
+                                (business) => PopupMenuItem<dynamic>(
                                   value: business,
                                   child: Row(
                                     children: [
                                       Container(
-                                        width: 24,
-                                        height: 24,
+                                        width: 28,
+                                        height: 28,
                                         decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.grey.withValues(
-                                              alpha: 0.2,
-                                            ),
+                                          color:
+                                              business.id ==
+                                                  businessProvider
+                                                      .currentBusiness
+                                                      ?.id
+                                              ? AppConstants.primaryColor
+                                              : const Color(0xFFE2E8F0),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
                                           ),
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
-                                          business.name.isNotEmpty
-                                              ? business.name[0].toUpperCase()
-                                              : '?',
-                                          style: const TextStyle(
-                                            fontSize: 10,
+                                          (business.name.isNotEmpty
+                                                  ? business.name
+                                                  : '?')[0]
+                                              .toUpperCase(),
+                                          style: TextStyle(
+                                            color:
+                                                business.id ==
+                                                    businessProvider
+                                                        .currentBusiness
+                                                        ?.id
+                                                ? Colors.white
+                                                : const Color(0xFF475569),
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 12,
                                           ),
                                         ),
                                       ),
@@ -216,11 +232,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                       Expanded(
                                         child: Text(
                                           business.name,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
                                           overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontWeight:
+                                                business.id ==
+                                                    businessProvider
+                                                        .currentBusiness
+                                                        ?.id
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                          ),
                                         ),
                                       ),
                                       if (business.id ==
@@ -235,21 +256,27 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                 ),
                               ),
                               const PopupMenuDivider(),
-                              const PopupMenuItem(
+                              const PopupMenuItem<dynamic>(
                                 value: 'new_org',
                                 child: Row(
                                   children: [
                                     Icon(
-                                      Icons.add,
+                                      Icons.add_business,
                                       size: 20,
-                                      color: AppConstants.slate500,
+                                      color: AppConstants.primaryColor,
                                     ),
                                     SizedBox(width: 12),
-                                    Text('New Organization'),
+                                    Text(
+                                      'Manage Organizations',
+                                      style: TextStyle(
+                                        color: AppConstants.primaryColor,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                              const PopupMenuItem(
+                              const PopupMenuDivider(),
+                              const PopupMenuItem<dynamic>(
                                 value: 'settings',
                                 child: Row(
                                   children: [
@@ -260,24 +287,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                     ),
                                     SizedBox(width: 12),
                                     Text('Account Settings'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuDivider(),
-                              const PopupMenuItem(
-                                value: 'logout',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.logout,
-                                      size: 20,
-                                      color: Colors.red,
-                                    ),
-                                    SizedBox(width: 12),
-                                    Text(
-                                      'Logout',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -445,7 +454,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 12),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(8),
@@ -457,7 +466,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           children: [
             Icon(icon, size: 24, color: textColor),
             if (!_isCollapsed) ...[
-              const SizedBox(width: 12),
+              const SizedBox(width: 7),
               Expanded(
                 child: Text(
                   title,

@@ -7,6 +7,7 @@ class Product {
   final String? imageUrl;
   final String details;
   final DateTime? createdAt;
+  final String? businessId;
 
   // Helper for UI to show category name (will need to be joined with categories)
   String? categoryName;
@@ -21,6 +22,7 @@ class Product {
     required this.details,
     this.createdAt,
     this.categoryName,
+    this.businessId,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -59,7 +61,8 @@ class Product {
       if (json['createdAt'] is String) {
         parsedCreatedAt = DateTime.tryParse(json['createdAt']);
       }
-      // If needed, handle Map/Timestamp here, but String is standard for JSON API
+
+      String? parsedBusinessId = json['businessId'] as String?;
 
       return Product(
         id: parsedId,
@@ -71,6 +74,7 @@ class Product {
         details: parsedDetails,
         createdAt: parsedCreatedAt,
         categoryName: parsedCategoryName,
+        businessId: parsedBusinessId,
       );
     } catch (e) {
       print('Error parsing Product: $json');
@@ -89,6 +93,7 @@ class Product {
       'imageUrl': imageUrl,
       'details': details,
       'createdAt': createdAt?.toIso8601String(),
+      'businessId': businessId,
     };
   }
 }
