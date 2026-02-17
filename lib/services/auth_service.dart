@@ -37,7 +37,7 @@ class AuthService {
     }
   }
 
-  Future<String> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
@@ -45,10 +45,23 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['idToken'];
+      return jsonDecode(response.body);
     } else {
       throw Exception('Failed to login: ${response.body}');
+    }
+  }
+
+  Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/refresh-token'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'refreshToken': refreshToken}),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to refresh token: ${response.body}');
     }
   }
 

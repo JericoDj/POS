@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_dimensions.dart';
 import 'home_sections/sales_section.dart';
+import 'home_sections/sales_history_section.dart';
 import 'home_sections/reports_section.dart';
 import 'home_sections/inventory_section.dart';
 import 'home_sections/customers_section.dart';
@@ -79,6 +80,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         );
       case 6:
         return const Center(child: Text('Logging out...'));
+      case 7:
+        return const SalesHistorySection();
       default:
         return const SalesSection();
     }
@@ -312,7 +315,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                _buildMenuItem(Icons.storefront, 'Sales', 0),
+                _buildMenuItem(Icons.point_of_sale, 'POS', 0),
+                const SizedBox(height: 4),
+                _buildMenuItem(
+                  Icons.receipt_long,
+                  'Sales',
+                  7,
+                ), // New Sales History
                 const SizedBox(height: 4),
                 _buildMenuItem(Icons.inventory_2_outlined, 'Inventory', 1),
                 const SizedBox(height: 4),

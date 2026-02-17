@@ -146,6 +146,30 @@ class BusinessProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteBusiness(String token, String id) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await _businessService.deleteBusiness(token, id);
+      await fetchAllBusinesses(token);
+
+      // If deleted business was current, clear it or switch to another
+      if (_currentBusiness?.id == id) {
+        if (_businesses.isNotEmpty) {
+          await switchBusiness(_businesses.first);
+        } else {
+          await clearBusiness();
+        }
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> clearBusiness() async {
     _currentBusiness = null;
     _businesses = [];

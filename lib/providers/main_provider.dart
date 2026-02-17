@@ -40,7 +40,8 @@ class MainProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      _token = await _authService.login(email, password);
+      final data = await _authService.login(email, password);
+      _token = data['idToken'];
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', _token!);
       _user = await _authService.getCurrentUser(_token!);

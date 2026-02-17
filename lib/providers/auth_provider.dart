@@ -7,6 +7,7 @@ class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
   UserModel? _user;
   String? _token;
+  String? _refreshToken;
   bool _isLoading = false;
 
   UserModel? get user => _user;
@@ -21,14 +22,32 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('auth_token');
+    _refreshToken = prefs.getString('refresh_token');
+
     if (_token != null) {
       try {
         _isLoading = true;
         notifyListeners();
         _user = await _authService.getCurrentUser(_token!);
       } catch (e) {
-        _token = null;
-        await prefs.remove('auth_token');
+        // If getting user fails, try refreshing token
+        if (_refreshToken != null) {
+          try {
+            await refreshAccessToken();
+            // User fetching is handled inside refreshAccessToken or we retry here?
+            // refreshAccessToken updates _token.
+            // Let's retry fetching user.
+            _user = await _authService.getCurrentUser(_token!);
+          } catch (refreshError) {
+            _token = null;
+            _refreshToken = null;
+            await prefs.remove('auth_token');
+            await prefs.remove('refresh_token');
+          }
+        } else {
+          _token = null;
+          await prefs.remove('auth_token');
+        }
       } finally {
         _isLoading = false;
         notifyListeners();
@@ -40,9 +59,15 @@ class AuthProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      _token = await _authService.login(email, password);
+      final data = await _authService.login(email, password);
+      _token = data['idToken'];
+      _refreshToken = data['refreshToken']; // Assuming key is refreshToken
+
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', _token!);
+      if (_token != null) await prefs.setString('auth_token', _token!);
+      if (_refreshToken != null)
+        await prefs.setString('refresh_token', _refreshToken!);
+
       _user = await _authService.getCurrentUser(_token!);
     } catch (e) {
       rethrow;
@@ -51,6 +76,32 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> refreshAccessToken() async {
+    if (_refreshToken == null) {
+      throw Exception('No refresh token available');
+    }
+    try {
+      final data = await _authService.refreshToken(_refreshToken!);
+      _token =
+          data['id_token']; // Firebase usually returns 'id_token' and 'refresh_token'
+      _refreshToken = data['refresh_token'];
+
+      final prefs = await SharedPreferences.getInstance();
+      if (_token != null) await prefs.setString('auth_token', _token!);
+      if (_refreshToken != null)
+        await prefs.setString('refresh_token', _refreshToken!);
+
+      notifyListeners();
+    } catch (e) {
+      // If refresh fails, log out
+      await logout();
+      rethrow;
+    }
+  }
+
+  // Registration logic remains similar but we might need to handle auto-login return types if modified.
+  // For now leaving register as is, but it calls login() which is updated.
 
   Future<void> register({
     required String email,
@@ -63,17 +114,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      // Register returns the user model directly based on my implementation
-      // Use the returned user or fetch it if needed.
-      // Based on AuthService implementation it returns UserModel
-      // But it doesn't return the token unless the API does.
-      // If API registers but doesn't login automatically, we might need to login.
-      // Assuming register creates user but we need to login to get token?
-      // Re-reading AuthService login: returns token.
-      // Re-reading AuthService register: returns UserModel.
-      // Typically register either returns token or we must separate login.
-      // Let's assume for now we call register then login for better flow if API doesn't return token.
-
+      // Register logic...
       await _authService.register(
         email: email,
         password: password,
@@ -112,9 +153,11 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     _token = null;
+    _refreshToken = null;
     _user = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
+    await prefs.remove('refresh_token');
     notifyListeners();
   }
 

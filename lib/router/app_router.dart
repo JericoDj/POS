@@ -8,6 +8,7 @@ import '../screens/home_dashboard.dart';
 import '../screens/splash_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/business/create_business_screen.dart';
+import '../screens/business/manage_organizations_screen.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -56,6 +57,10 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/business/create',
         builder: (context, state) => const CreateBusinessScreen(),
+      ),
+      GoRoute(
+        path: '/business/manage',
+        builder: (context, state) => const ManageOrganizationsScreen(),
       ),
       GoRoute(
         path: '/splash',

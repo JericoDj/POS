@@ -63,10 +63,10 @@ class _SettingsSectionState extends State<SettingsSection> {
                 _buildSettingsCard(
                   children: [
                     _buildListTile(
-                      icon: Icons.add_business_outlined,
-                      title: 'Create Business',
-                      subtitle: 'Register a new business and become owner',
-                      onTap: () => context.push('/business/create'),
+                      icon: Icons.business_center_outlined,
+                      title: 'Manage Organizations',
+                      subtitle: 'Switch, edit, or create businesses',
+                      onTap: () => context.push('/business/manage'),
                     ),
                   ],
                 ),
