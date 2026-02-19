@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   static const String appName = "Leos POS";
+  // static const String backendUrl = "https://pos-backend-rosy.vercel.app/api";
+  static String get backendUrl =>
+      dotenv.env['BACKEND_URL'] ?? 'https://pos-backend-rosy.vercel.app/api';
 
   // Colors
   // Colors

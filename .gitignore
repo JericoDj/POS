@@ -46,3 +46,4 @@ app.*.map.json
 
 # Firebase Service Account Key
 lib/restaurant-pos-165f6-firebase-adminsdk-fbsvc-d1c24f2f76.json
+.env

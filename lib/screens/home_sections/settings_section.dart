@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_constants.dart';
+import '../../providers/subscription_provider.dart';
+
+import '../paywall_screen.dart';
 
 class SettingsSection extends StatefulWidget {
   const SettingsSection({super.key});
@@ -41,6 +45,62 @@ class _SettingsSectionState extends State<SettingsSection> {
                       title: 'Edit Profile',
                       subtitle: 'Change your name, email, and profile picture',
                       onTap: () => context.push('/profile'),
+                    ),
+                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    Consumer<SubscriptionProvider>(
+                      builder: (context, subscription, child) {
+                        final isPro = subscription.isPro;
+                        return _buildListTile(
+                          icon: isPro
+                              ? Icons.star
+                              : Icons.workspace_premium_outlined,
+                          title: 'Subscription',
+                          subtitle: isPro ? 'Pro Plan Active' : 'Free Plan',
+                          // If pro, show amber star, else grey/default color
+                          iconColor: isPro ? Colors.amber : null,
+                          onTap: () {
+                            // Option A: Direct Manage/Upgrade
+                            if (isPro) {
+                              // subscription.manageSubscription();
+                              // Better UX: Show sheet with options
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) => SafeArea(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        leading: const Icon(
+                                          Icons.manage_accounts,
+                                        ),
+                                        title: const Text(
+                                          'Manage Subscription (Customer Center)',
+                                        ),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          PaywallScreen.present(context);
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.open_in_new),
+                                        title: const Text(
+                                          'Manage in Store (Cancel/Upgrade)',
+                                        ),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          PaywallScreen.present(context);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              PaywallScreen.present(context);
+                            }
+                          },
+                        );
+                      },
                     ),
                     const Divider(height: 1, color: Color(0xFFF1F5F9)),
                     _buildListTile(
@@ -100,24 +160,24 @@ class _SettingsSectionState extends State<SettingsSection> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                _buildSectionTitle('Business'),
-                _buildSettingsCard(
-                  children: [
-                    _buildListTile(
-                      icon: Icons.storefront_outlined,
-                      title: 'Store Information',
-                      subtitle: 'Update store name, address, and contact info',
-                      onTap: () {},
-                    ),
-                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                    _buildListTile(
-                      icon: Icons.receipt_long_outlined,
-                      title: 'Tax & Receipts',
-                      subtitle: 'Configure tax rates and receipt settings',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
+                // _buildSectionTitle('Business'),
+                // _buildSettingsCard(
+                //   children: [
+                //     _buildListTile(
+                //       icon: Icons.storefront_outlined,
+                //       title: 'Store Information',
+                //       subtitle: 'Update store name, address, and contact info',
+                //       onTap: () {},
+                //     ),
+                //     const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                //     _buildListTile(
+                //       icon: Icons.receipt_long_outlined,
+                //       title: 'Tax & Receipts',
+                //       subtitle: 'Configure tax rates and receipt settings',
+                //       onTap: () {},
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
@@ -164,6 +224,7 @@ class _SettingsSectionState extends State<SettingsSection> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    Color? iconColor,
   }) {
     return ListTile(
       leading: Container(
@@ -172,7 +233,11 @@ class _SettingsSectionState extends State<SettingsSection> {
           color: const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        child: Icon(
+          icon,
+          size: 20,
+          color: iconColor ?? const Color(0xFF64748B),
+        ),
       ),
       title: Text(
         title,

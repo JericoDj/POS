@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/business_model.dart';
+import '../constants/app_constants.dart';
 
 class BusinessService {
-  final String baseUrl = 'https://pos-backend-rosy.vercel.app/api/business';
+  final String baseUrl = '${AppConstants.backendUrl}/business';
 
   Future<BusinessModel> createBusiness(
     String token,
@@ -60,6 +61,25 @@ class BusinessService {
       return BusinessModel.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to update business: ${response.body}');
+    }
+  }
+
+  Future<void> subscribeBusiness(
+    String token,
+    String id,
+    Map<String, dynamic> subscriptionData,
+  ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/$id/subscribe'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(subscriptionData),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to subscribe business: ${response.body}');
     }
   }
 

@@ -162,4 +162,33 @@ class BusinessProvider extends ChangeNotifier {
     await _box.remove('all_businesses');
     notifyListeners();
   }
+
+  Future<void> updateCurrentBusinessSubscription(
+    Map<String, dynamic> subscriptionData,
+  ) async {
+    if (_token == null || _currentBusiness == null) return;
+    try {
+      await _businessService.subscribeBusiness(
+        _token!,
+        _currentBusiness!.id,
+        subscriptionData,
+      );
+      // Refresh business data to get the latest status
+      await fetchAllBusinesses(_token!);
+    } catch (e) {
+      print('Error updating subscription: $e');
+      rethrow;
+    }
+  }
+
+  void updateSubscriptionLocally(Map<String, dynamic> subscriptionData) {
+    if (_currentBusiness != null) {
+      final updatedBusinessData = _currentBusiness!.toJson();
+      updatedBusinessData['subscription'] = subscriptionData;
+
+      _currentBusiness = BusinessModel.fromJson(updatedBusinessData);
+      _box.write('current_business', _currentBusiness!.toJson());
+      notifyListeners();
+    }
+  }
 }

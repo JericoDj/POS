@@ -7,19 +7,16 @@ import 'providers/business_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/sales_provider.dart';
+import 'providers/subscription_provider.dart';
 import 'constants/app_constants.dart';
 
-import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await GetStorage.init();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]).then((_) {
-    runApp(const MyApp());
-  });
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -60,6 +57,15 @@ class MyApp extends StatelessWidget {
           create: (_) => SalesProvider(),
           update: (context, auth, business, sales) =>
               sales!..update(auth.token, business.currentBusiness?.id),
+        ),
+        ChangeNotifierProxyProvider2<
+          AuthProvider,
+          BusinessProvider,
+          SubscriptionProvider
+        >(
+          create: (_) => SubscriptionProvider()..init(),
+          update: (context, auth, business, subscription) =>
+              subscription!..update(business, auth),
         ),
       ],
       child: Builder(

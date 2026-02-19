@@ -29,7 +29,7 @@ GoRouter createRouter(AuthProvider authProvider) {
         // user is logged in
         // Check if user has a business
         if (authProvider.user?.businessId == null) {
-          return '/business/create';
+          return '/';
         }
         return '/';
       }

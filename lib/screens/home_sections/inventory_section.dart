@@ -15,6 +15,10 @@ class InventorySection extends StatefulWidget {
 }
 
 class _InventorySectionState extends State<InventorySection> {
+  bool _isSmallScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width < 800;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,57 +50,111 @@ class _InventorySectionState extends State<InventorySection> {
   }
 
   Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'Inventory Management',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppConstants.slate800,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Manage your products, stock levels, and pricing',
-              style: TextStyle(fontSize: 14, color: AppConstants.slate500),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            _buildHeaderAction(Icons.download, 'Export', () {}),
-            const SizedBox(width: 12),
-            _buildHeaderAction(Icons.category, 'Manage Categories', () {
-              _showManageCategoriesDialog(context);
-            }),
-            const SizedBox(width: 12),
-            const SizedBox(width: 12),
-            ElevatedButton.icon(
-              onPressed: () => _showAddProductDialog(context),
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Product'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppConstants.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
+    final isSmall = _isSmallScreen(context);
+
+    return isSmall
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Inventory Management',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppConstants.slate800,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
               ),
-            ),
-          ],
-        ),
-      ],
-    );
+              const SizedBox(height: 4),
+              const Text(
+                'Manage your products, stock levels, and pricing',
+                style: TextStyle(fontSize: 14, color: AppConstants.slate500),
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildHeaderAction(Icons.download, 'Export', () {}),
+                    const SizedBox(width: 8),
+                    _buildHeaderAction(Icons.category, 'Categories', () {
+                      _showManageCategoriesDialog(context);
+                    }),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () => _showAddProductDialog(context),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppConstants.primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Inventory Management',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppConstants.slate800,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Manage your products, stock levels, and pricing',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppConstants.slate500,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  _buildHeaderAction(Icons.download, 'Export', () {}),
+                  const SizedBox(width: 12),
+                  _buildHeaderAction(Icons.category, 'Manage Categories', () {
+                    _showManageCategoriesDialog(context);
+                  }),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddProductDialog(context),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add Product'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
   }
 
   Widget _buildHeaderAction(IconData icon, String label, VoidCallback onTap) {
@@ -114,6 +172,8 @@ class _InventorySectionState extends State<InventorySection> {
   }
 
   Widget _buildToolbar() {
+    final isSmall = _isSmallScreen(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -121,77 +181,154 @@ class _InventorySectionState extends State<InventorySection> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
       ),
-      child: Row(
-        children: [
-          // Search
-          Expanded(
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppConstants.backgroundLight,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search by product name, SKU, or category...',
-                  hintStyle: const TextStyle(
-                    fontSize: 14,
-                    color: AppConstants.slate500,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: AppConstants.slate500,
-                    size: 20,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.only(bottom: 8),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          // Filter
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.filter_list,
-              size: 18,
-              color: AppConstants.slate800,
-            ),
-            label: const Text(
-              'Filters',
-              style: TextStyle(color: AppConstants.slate800),
-            ),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 18,
-              ), // taller to match search height
-              side: BorderSide(color: Colors.grey[300]!),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          // View Toggle
-          Container(
-            decoration: BoxDecoration(
-              color: AppConstants.backgroundLight,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
+      child: isSmall
+          ? Column(
               children: [
-                _buildViewToggle(Icons.table_chart, true),
-                Container(width: 1, height: 24, color: Colors.grey[300]),
-                _buildViewToggle(Icons.grid_view, false),
+                // Search
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppConstants.backgroundLight,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search...',
+                      hintStyle: const TextStyle(
+                        fontSize: 14,
+                        color: AppConstants.slate500,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppConstants.slate500,
+                        size: 20,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.only(bottom: 8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    // Filter
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.filter_list,
+                          size: 18,
+                          color: AppConstants.slate800,
+                        ),
+                        label: const Text(
+                          'Filters',
+                          style: TextStyle(color: AppConstants.slate800),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: BorderSide(color: Colors.grey[300]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // View Toggle
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppConstants.backgroundLight,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Row(
+                        children: [
+                          _buildViewToggle(Icons.table_chart, true),
+                          Container(
+                            width: 1,
+                            height: 24,
+                            color: Colors.grey[300],
+                          ),
+                          _buildViewToggle(Icons.grid_view, false),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                // Search
+                Expanded(
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppConstants.backgroundLight,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search by product name, SKU, or category...',
+                        hintStyle: const TextStyle(
+                          fontSize: 14,
+                          color: AppConstants.slate500,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: AppConstants.slate500,
+                          size: 20,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.only(bottom: 8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Filter
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.filter_list,
+                    size: 18,
+                    color: AppConstants.slate800,
+                  ),
+                  label: const Text(
+                    'Filters',
+                    style: TextStyle(color: AppConstants.slate800),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 18,
+                    ), // taller to match search height
+                    side: BorderSide(color: Colors.grey[300]!),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // View Toggle
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppConstants.backgroundLight,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      _buildViewToggle(Icons.table_chart, true),
+                      Container(width: 1, height: 24, color: Colors.grey[300]),
+                      _buildViewToggle(Icons.grid_view, false),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -252,6 +389,10 @@ class _InventorySectionState extends State<InventorySection> {
               ],
             ),
           );
+        }
+
+        if (_isSmallScreen(context)) {
+          return _buildMobileProductList(provider.products);
         }
 
         return SingleChildScrollView(
@@ -492,6 +633,48 @@ class _InventorySectionState extends State<InventorySection> {
   }
 
   Widget _buildPagination() {
+    final isSmall = _isSmallScreen(context);
+
+    if (isSmall) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.grey[300]!),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Previous',
+              style: TextStyle(color: AppConstants.slate800),
+            ),
+          ),
+          const Text(
+            'Page 1 of 10',
+            style: TextStyle(color: AppConstants.slate500, fontSize: 14),
+          ),
+          OutlinedButton(
+            onPressed: () {},
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.grey[300]!),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Next',
+              style: TextStyle(color: AppConstants.slate800),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -623,6 +806,138 @@ class _InventorySectionState extends State<InventorySection> {
       builder: (context) => const ManageCategoriesDialog(),
     );
   }
+
+  Widget _buildMobileProductList(List<Product> products) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: products.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        return _buildMobileProductCard(products[index]);
+      },
+    );
+  }
+
+  Widget _buildMobileProductCard(Product product) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                  image:
+                      product.imageUrl != null && product.imageUrl!.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(product.imageUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: (product.imageUrl == null || product.imageUrl!.isEmpty)
+                    ? const Icon(Icons.image, color: Colors.grey, size: 24)
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppConstants.slate800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      product.categoryId, // Should map to category name
+                      style: const TextStyle(
+                        color: AppConstants.slate500,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'SKU: ${product.id.substring(0, 8).toUpperCase()}',
+                      style: const TextStyle(
+                        color: AppConstants.slate400,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _buildActionCell(context, product),
+            ],
+          ),
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Price',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppConstants.slate500,
+                    ),
+                  ),
+                  Text(
+                    '\$${product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppConstants.slate800,
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    'Stock',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppConstants.slate500,
+                    ),
+                  ),
+                  Text(
+                    '${product.stock}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: AppConstants.slate800,
+                    ),
+                  ),
+                ],
+              ),
+              _buildStatusCell(product.stock),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class ManageCategoriesDialog extends StatefulWidget {
@@ -670,11 +985,15 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    final isSmall = width < 800;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: 600,
-        height: 700,
+        width: isSmall ? width * 0.95 : 600,
+        height: isSmall ? height * 0.9 : 700,
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
@@ -683,11 +1002,17 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
               children: [
                 Text(
                   'Manage Categories',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppConstants.slate800,
-                  ),
+                  style: isSmall
+                      ? const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.slate800,
+                        )
+                      : const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.slate800,
+                        ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -697,7 +1022,8 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
             ),
             const Divider(height: 32),
             Expanded(
-              child: Row(
+              child: Flex(
+                direction: isSmall ? Axis.vertical : Axis.horizontal,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // List of Categories
@@ -807,108 +1133,115 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                       ],
                     ),
                   ),
-                  const VerticalDivider(width: 48),
+                  if (isSmall)
+                    const Divider(height: 24)
+                  else
+                    const VerticalDivider(width: 48),
                   // Form
                   Expanded(
                     flex: 1,
                     child: _isAdding
                         ? Form(
                             key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _editingCategory == null
-                                      ? 'Create Category'
-                                      : 'Edit Category',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _editingCategory == null
+                                        ? 'Create Category'
+                                        : 'Edit Category',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 24),
-                                TextFormField(
-                                  controller: _nameController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Category Name',
-                                    border: OutlineInputBorder(),
+                                  const SizedBox(height: 24),
+                                  TextFormField(
+                                    controller: _nameController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Category Name',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    validator: (value) =>
+                                        value == null || value.isEmpty
+                                        ? 'Required'
+                                        : null,
                                   ),
-                                  validator: (value) =>
-                                      value == null || value.isEmpty
-                                      ? 'Required'
-                                      : null,
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _descriptionController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Description',
-                                    border: OutlineInputBorder(),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _descriptionController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Description',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    maxLines: 3,
                                   ),
-                                  maxLines: 3,
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _colorController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Color Hex (e.g. #FF5733)',
-                                    border: const OutlineInputBorder(),
-                                    suffixIcon: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      width: 24,
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: _parseColor(
-                                          _colorController.text,
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _colorController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Color Hex (e.g. #FF5733)',
+                                      border: const OutlineInputBorder(),
+                                      suffixIcon: Container(
+                                        margin: const EdgeInsets.all(8),
+                                        width: 24,
+                                        height: 24,
+                                        decoration: BoxDecoration(
+                                          color: _parseColor(
+                                            _colorController.text,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                          ),
                                         ),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.grey),
                                       ),
                                     ),
+                                    onChanged: (_) => setState(() {}),
                                   ),
-                                  onChanged: (_) => setState(() {}),
-                                ),
-                                const Spacer(),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    OutlinedButton(
-                                      onPressed: _resetForm,
-                                      child: const Text('Cancel'),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Consumer<CategoryProvider>(
-                                      builder: (context, provider, child) {
-                                        return ElevatedButton(
-                                          onPressed: provider.isLoading
-                                              ? null
-                                              : () => _submitForm(provider),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                AppConstants.primaryColor,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          child: provider.isLoading
-                                              ? const SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                        color: Colors.white,
-                                                      ),
-                                                )
-                                              : Text(
-                                                  _editingCategory == null
-                                                      ? 'Create'
-                                                      : 'Update',
-                                                ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      OutlinedButton(
+                                        onPressed: _resetForm,
+                                        child: const Text('Cancel'),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Consumer<CategoryProvider>(
+                                        builder: (context, provider, child) {
+                                          return ElevatedButton(
+                                            onPressed: provider.isLoading
+                                                ? null
+                                                : () => _submitForm(provider),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppConstants.primaryColor,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                            child: provider.isLoading
+                                                ? const SizedBox(
+                                                    width: 20,
+                                                    height: 20,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: Colors.white,
+                                                        ),
+                                                  )
+                                                : Text(
+                                                    _editingCategory == null
+                                                        ? 'Create'
+                                                        : 'Update',
+                                                  ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           )
                         : Center(
@@ -1133,10 +1466,11 @@ class _ProductDialogState extends State<ProductDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: 500,
+        width: width > 550 ? 500 : width * 0.9,
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,

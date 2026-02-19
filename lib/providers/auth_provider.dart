@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/user_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
   UserModel? _user;
   String? _token;
   String? _refreshToken;
@@ -200,6 +202,18 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> updateUserSubscription(String subscriptionId) async {
+    if (_token == null) return;
+    try {
+      await _userService.updateSubscriptionId(_token!, subscriptionId);
+      // Refresh user to get updated data if needed (though subscriptionId might not be in the basic profile immediately unless we fetch it)
+      await refreshUser();
+    } catch (e) {
+      print('Error updating user subscription: $e');
+      rethrow;
     }
   }
 }
