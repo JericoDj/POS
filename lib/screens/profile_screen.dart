@@ -63,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(
-                    child: Stack(
+                    child: Column(
                       children: [
                         CircleAvatar(
                           radius: 50,

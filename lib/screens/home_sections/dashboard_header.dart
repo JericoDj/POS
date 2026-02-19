@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../constants/app_constants.dart';
+import '../../providers/business_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../models/business_model.dart';
 
 class DashboardHeader extends StatefulWidget {
   final VoidCallback? onMenuPressed;
@@ -124,7 +129,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
     );
   }
 
-  /// Mobile: Menu | App Name | Search Icon
+  /// Mobile: Menu | Business Switcher | Search Icon
   Widget _buildMobileHeader(BuildContext context) {
     return Row(
       children: [
@@ -139,23 +144,170 @@ class _DashboardHeaderState extends State<DashboardHeader>
           ),
         if (widget.onMenuPressed != null) const SizedBox(width: 12),
 
-        // Logo + App Name
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: AppConstants.primaryColor,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: const Icon(Icons.point_of_sale, color: Colors.white, size: 16),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          AppConstants.appName,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppConstants.slate800,
-          ),
+        const Spacer(),
+        // Business Switcher
+        Consumer<BusinessProvider>(
+          builder: (context, businessProvider, child) {
+            final currentBusiness = businessProvider.currentBusiness;
+            return PopupMenuButton<dynamic>(
+              offset: const Offset(0, 40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: AppConstants.primaryColor,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      (currentBusiness?.name.isNotEmpty == true
+                              ? currentBusiness!.name
+                              : "No Organization")[0]
+                          .toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          currentBusiness?.name ?? "No Organization",
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppConstants.slate800,
+                                fontSize: 14,
+                              ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 16,
+                        color: AppConstants.slate500,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              onSelected: (value) {
+                if (value is BusinessModel) {
+                  businessProvider.switchBusiness(value);
+                } else if (value == 'settings') {
+                  context.push('/profile');
+                } else if (value == 'new_org') {
+                  context.push('/business/manage');
+                }
+              },
+              itemBuilder: (context) {
+                return [
+                  ...businessProvider.businesses.map(
+                    (business) => PopupMenuItem<dynamic>(
+                      value: business,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color:
+                                  business.id ==
+                                      businessProvider.currentBusiness?.id
+                                  ? AppConstants.primaryColor
+                                  : const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              (business.name.isNotEmpty
+                                      ? business.name
+                                      : '?')[0]
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                color:
+                                    business.id ==
+                                        businessProvider.currentBusiness?.id
+                                    ? Colors.white
+                                    : const Color(0xFF475569),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              business.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight:
+                                    business.id ==
+                                        businessProvider.currentBusiness?.id
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                          if (business.id ==
+                              businessProvider.currentBusiness?.id)
+                            const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: AppConstants.primaryColor,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem<dynamic>(
+                    value: 'new_org',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.add_business,
+                          size: 20,
+                          color: AppConstants.primaryColor,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Manage Organizations',
+                          style: TextStyle(color: AppConstants.primaryColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem<dynamic>(
+                    value: 'settings',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.settings,
+                          size: 20,
+                          color: AppConstants.slate500,
+                        ),
+                        SizedBox(width: 12),
+                        Text('Account Settings'),
+                      ],
+                    ),
+                  ),
+                ];
+              },
+            );
+          },
         ),
 
         const Spacer(),
@@ -209,12 +361,16 @@ class _DashboardHeaderState extends State<DashboardHeader>
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                AppConstants.appName,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppConstants.slate800,
-                ),
+              Consumer<BusinessProvider>(
+                builder: (context, businessProvider, child) {
+                  return Text(
+                    businessProvider.currentBusiness?.name ?? "No Organization",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppConstants.slate800,
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: 32),
 
@@ -272,56 +428,78 @@ class _DashboardHeaderState extends State<DashboardHeader>
             ),
 
             // Profile
-            InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(24),
-              child: Row(
-                children: [
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, child) {
+                final user = authProvider.user;
+                return InkWell(
+                  onTap: () {
+                    context.push('/profile');
+                  },
+                  borderRadius: BorderRadius.circular(24),
+                  child: Row(
                     children: [
-                      Text(
-                        'Alex M.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppConstants.slate800,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            user?.displayName ?? 'User',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppConstants.slate800,
+                            ),
+                          ),
+                          Text(
+                            user?.email ?? '',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppConstants.slate500,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'Cashier #4',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppConstants.slate500,
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: user?.photoURL != null
+                              ? Colors.transparent
+                              : AppConstants.primaryColor,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 4,
+                            ),
+                          ],
+                          image: user?.photoURL != null
+                              ? DecorationImage(
+                                  image: NetworkImage(user!.photoURL!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
+                        alignment: Alignment.center,
+                        child: user?.photoURL == null
+                            ? Text(
+                                (user?.displayName?.isNotEmpty == true
+                                        ? user!.displayName!
+                                        : "U")[0]
+                                    .toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
                       ),
                     ],
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey.shade200,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                        ),
-                      ],
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuA9fCq8karq8JnuGckFpO_S9D0kRe1ugSA9oNV_bgrjsVFJ4HsKKNDULHCxSUWxeJBFXvz0f3BqAK29EL8_rB9to-RO3moSaurkh5P-UkA0DyBHPp5Wsw-7map3JvOAT1MwVgRAL1s5AzL1fr2EIJjxkn-KCzaX_iQyfUDdHTkFcWGODEesDyPYxAVf36c2PRmGMtxZLHtYY0JlUuN-GiboCen6cYJZN-5TZ9tbUG9XscrxRV8imZrtFTRFBLcdGaMwhC4YyHwN3kAa',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),

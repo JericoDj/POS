@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 import 'dart:ui'; // For ImageFilter
+import '../providers/auth_provider.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_dimensions.dart';
+import '../constants/policy_content.dart'; // Import PolicyContent
+import '../widgets/policy_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +21,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _isPasswordVisible = false;
+
+  Future<void> _showPolicyDialog(String title, String content) async {
+    await showDialog(
+      context: context,
+      builder: (context) => PolicyDialog(title: title, content: content),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +213,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ],
                                     ),
                                     TextButton(
-                                      onPressed: () {},
+                                      onPressed: () =>
+                                          context.push('/forgot-password'),
                                       style: TextButton.styleFrom(
                                         padding: EdgeInsets.zero,
                                         minimumSize: Size.zero,
@@ -296,90 +306,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
                                 const SizedBox(height: 16),
-
-                                // Google Sign In Button
-                                OutlinedButton(
-                                  onPressed: () {
-                                    // Handle Google Sign In
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF334155),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    side: const BorderSide(
-                                      color: Color(0xFFE2E8F0),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // Google Icon SVG representation (using Icons for simplicity or manual drawing if strict, sticking to icon for now or image asset if available. HTML had SVG path. I will use a placeholder Icon or Text since I don't have the asset).
-                                      // Actually, I can leave the icon out or put a colored G.
-                                      // Let's use a Text 'G' with colors for now to match strictness without assets.
-                                      // Or better, just a simple storage-safe solution.
-                                      RichText(
-                                        text: const TextSpan(
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: 'G',
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: 'o',
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: 'o',
-                                              style: TextStyle(
-                                                color: Colors.orange,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: 'g',
-                                              style: TextStyle(
-                                                color: Colors.blue,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: 'l',
-                                              style: TextStyle(
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: 'e',
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      const Text(
-                                        'Sign in with Google',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
 
                                 const SizedBox(height: 32),
                                 Row(
@@ -476,7 +402,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildFooterLink('Privacy Policy'),
+                      _buildFooterLink(
+                        'Privacy Policy',
+                        () => _showPolicyDialog(
+                          'Privacy Policy',
+                          PolicyContent.privacyPolicy,
+                        ),
+                      ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
@@ -484,7 +416,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(color: Color(0xFF94A3B8)),
                         ),
                       ),
-                      _buildFooterLink('Terms of Service'),
+                      _buildFooterLink(
+                        'Terms of Service',
+                        () => _showPolicyDialog(
+                          'Terms of Service',
+                          PolicyContent.termsOfService,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -559,9 +497,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildFooterLink(String text) {
+  Widget _buildFooterLink(String text, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: Text(
         text,
         style: const TextStyle(

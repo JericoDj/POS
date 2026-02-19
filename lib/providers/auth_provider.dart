@@ -216,4 +216,21 @@ class AuthProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    if (_token == null) return;
+    try {
+      _isLoading = true;
+      notifyListeners();
+      await _authService.changePassword(_token!, currentPassword, newPassword);
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

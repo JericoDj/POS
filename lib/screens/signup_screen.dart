@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -20,6 +22,80 @@ class _SignupScreenState extends State<SignupScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   bool _obscurePassword = true;
+  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'US');
+  double _passwordStrength = 0;
+  String _initialCountry = 'US';
+
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (placemarks.isNotEmpty && placemarks.first.isoCountryCode != null) {
+        if (mounted) {
+          setState(() {
+            _initialCountry = placemarks.first.isoCountryCode!;
+            _phoneNumber = PhoneNumber(isoCode: _initialCountry);
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+    }
+  }
+
+  void _updatePasswordStrength(String password) {
+    double strength = 0;
+    if (password.length >= 8) strength += 0.25;
+    if (password.contains(RegExp(r'[A-Z]'))) strength += 0.25;
+    if (password.contains(RegExp(r'[0-9]'))) strength += 0.25;
+    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) strength += 0.25;
+    setState(() {
+      _passwordStrength = strength;
+    });
+  }
+
+  Color _getStrengthColor() {
+    if (_passwordStrength <= 0.25) return Colors.red;
+    if (_passwordStrength <= 0.5) return Colors.orange;
+    if (_passwordStrength <= 0.75) return Colors.yellow;
+    return Colors.green;
+  }
+
+  String _getStrengthText() {
+    if (_passwordStrength <= 0.25) return 'Weak';
+    if (_passwordStrength <= 0.5) return 'Fair';
+    if (_passwordStrength <= 0.75) return 'Good';
+    return 'Strong';
+  }
 
   @override
   void dispose() {
@@ -260,51 +336,50 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
 
                       // Stepper
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Step 1 of 2',
-                            style: TextStyle(
-                              color: AppConstants.primaryColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'Account Details',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppConstants.primaryColor,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                            const Expanded(flex: 1, child: SizedBox()),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     const Text(
+                      //       'Step 1 of 2',
+                      //       style: TextStyle(
+                      //         color: AppConstants.primaryColor,
+                      //         fontWeight: FontWeight.w500,
+                      //         fontSize: 14,
+                      //       ),
+                      //     ),
+                      //     Text(
+                      //       'Account Details',
+                      //       style: TextStyle(
+                      //         color: Colors.grey[600],
+                      //         fontWeight: FontWeight.w500,
+                      //         fontSize: 14,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // const SizedBox(height: 8),
+                      // Container(
+                      //   height: 8,
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.grey[200],
+                      //     borderRadius: BorderRadius.circular(4),
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       Expanded(
+                      //         flex: 1,
+                      //         child: Container(
+                      //           decoration: BoxDecoration(
+                      //             color: AppConstants.primaryColor,
+                      //             borderRadius: BorderRadius.circular(4),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       const Expanded(flex: 1, child: SizedBox()),
+                      //     ],
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 32),
 
                       // Header
                       const Text(
@@ -317,58 +392,58 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'Start your 14-day free trial. No credit card required.',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
 
-                      const SizedBox(height: 24),
-
-                      // Google Sign in
-                      OutlinedButton.icon(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: Colors.white,
-                          side: BorderSide(color: Colors.grey[300]!),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          foregroundColor: Colors.grey[700],
-                        ),
-                        icon: Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                          height: 20,
-                          width: 20,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.g_mobiledata),
-                        ),
-                        label: const Text(
-                          'Sign up with Google',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Divider
-                      const Row(
-                        children: [
-                          Expanded(child: Divider()),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'OR CONTINUE WITH EMAIL',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          Expanded(child: Divider()),
-                        ],
-                      ),
-
+                      // Text(
+                      //   'Start your 14-day free trial. No credit card required.',
+                      //   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      // ),
+                      //
+                      // const SizedBox(height: 24),
+                      //
+                      // // Google Sign in
+                      // OutlinedButton.icon(
+                      //   onPressed: () {},
+                      //   style: OutlinedButton.styleFrom(
+                      //     padding: const EdgeInsets.symmetric(vertical: 12),
+                      //     backgroundColor: Colors.white,
+                      //     side: BorderSide(color: Colors.grey[300]!),
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(8),
+                      //     ),
+                      //     foregroundColor: Colors.grey[700],
+                      //   ),
+                      //   icon: Image.network(
+                      //     'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                      //     height: 20,
+                      //     width: 20,
+                      //     errorBuilder: (context, error, stackTrace) =>
+                      //         const Icon(Icons.g_mobiledata),
+                      //   ),
+                      //   label: const Text(
+                      //     'Sign up with Google',
+                      //     style: TextStyle(fontWeight: FontWeight.w600),
+                      //   ),
+                      // ),
+                      //
+                      // const SizedBox(height: 24),
+                      //
+                      // // Divider
+                      // const Row(
+                      //   children: [
+                      //     Expanded(child: Divider()),
+                      //     Padding(
+                      //       padding: EdgeInsets.symmetric(horizontal: 16),
+                      //       child: Text(
+                      //         'OR CONTINUE WITH EMAIL',
+                      //         style: TextStyle(
+                      //           fontSize: 12,
+                      //           color: Colors.grey,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Expanded(child: Divider()),
+                      //   ],
+                      // ),
                       const SizedBox(height: 24),
 
                       Form(
@@ -406,6 +481,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
+                              onChanged: _updatePasswordStrength,
                               decoration: _inputDecoration(
                                 hintText: '••••••••',
                                 icon: Icons.lock_outline,
@@ -425,125 +501,97 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             const SizedBox(height: 8),
                             // Strength meter
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.yellow,
-                                      borderRadius: BorderRadius.circular(2),
+                            if (_passwordController.text.isNotEmpty) ...[
+                              Row(
+                                children: List.generate(4, (index) {
+                                  return Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(right: 4),
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: index < (_passwordStrength * 4)
+                                            ? _getStrengthColor()
+                                            : Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
+                                  );
+                                }),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  _getStrengthText(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _getStrengthColor(),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 4.0),
-                              child: Text(
-                                'Weak password. Try adding numbers.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.orange,
                                 ),
                               ),
-                            ),
+                            ],
 
                             const SizedBox(height: 20),
 
                             _buildLabel('Phone Number'),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 12,
-                                  ), // Match input height
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.grey[300]!,
+                            Container(
+                              height: 50,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: InternationalPhoneNumberInput(
+                                onInputChanged: (PhoneNumber number) {
+                                  _phoneNumber = number;
+                                },
+
+                                selectorConfig: const SelectorConfig(
+                                  selectorType:
+                                      PhoneInputSelectorType.BOTTOM_SHEET,
+                                  useBottomSheetSafeArea: true,
+                                  leadingPadding: 0,
+                                  trailingSpace: false,
+                                ),
+
+                                initialValue: _phoneNumber,
+                                textFieldController: _phoneController,
+                                formatInput: true,
+                                ignoreBlank: false,
+                                autoValidateMode: AutovalidateMode.disabled,
+
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: false,
                                     ),
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      bottomLeft: Radius.circular(8),
-                                    ),
-                                    color: Colors.transparent,
-                                  ),
-                                  child: const Text(
-                                    'US',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.normal,
-                                    ),
+
+                                selectorTextStyle: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+
+                                textAlign:
+                                    TextAlign.start, // ⭐ centers hint & input
+                                textAlignVertical: TextAlignVertical.center,
+
+                                inputBorder: InputBorder.none,
+
+                                inputDecoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                      EdgeInsets.zero, // ⭐ IMPORTANT
+                                  hintText: 'Phone Number',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16,
                                   ),
                                 ),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _phoneController,
-                                    decoration:
-                                        _inputDecoration(
-                                          hintText: '+1 (555) 987-6543',
-                                        ).copyWith(
-                                          prefixIcon:
-                                              null, // No icon inside, handled by external widget
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                  topRight: Radius.circular(8),
-                                                  bottomRight: Radius.circular(
-                                                    8,
-                                                  ),
-                                                ),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey[300]!,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                  topRight: Radius.circular(8),
-                                                  bottomRight: Radius.circular(
-                                                    8,
-                                                  ),
-                                                ),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey[300]!,
-                                            ),
-                                          ),
-                                        ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
 
                             const SizedBox(height: 32),
@@ -568,9 +616,11 @@ class _SignupScreenState extends State<SignupScreen> {
                                                   displayName: _nameController
                                                       .text
                                                       .trim(),
-                                                  phoneNumber: _phoneController
-                                                      .text
-                                                      .trim(),
+                                                  phoneNumber:
+                                                      _phoneNumber
+                                                          .phoneNumber ??
+                                                      _phoneController.text
+                                                          .trim(),
                                                 );
                                                 if (context.mounted) {
                                                   context.go('/');
@@ -692,13 +742,16 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Widget _buildLabel(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: Colors.grey[700],
+      padding: const EdgeInsets.only(left: 4, bottom: 6),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade700,
+          ),
         ),
       ),
     );
@@ -711,24 +764,10 @@ class _SignupScreenState extends State<SignupScreen> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: Colors.grey[400]),
-      prefixIcon: icon != null ? Icon(icon, color: Colors.grey[400]) : null,
+      prefixIcon: icon != null ? Icon(icon) : null,
       suffixIcon: suffixIcon,
-      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-        borderSide: BorderSide(color: AppConstants.primaryColor, width: 2),
-      ),
-      filled: true,
-      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
     );
   }
 }

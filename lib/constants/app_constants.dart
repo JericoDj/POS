@@ -17,7 +17,10 @@ class AppConstants {
   static const Color backgroundLight = Color(0xFFFFFFFF); // White
   static const Color backgroundDark = Color(
     0xFFF8FAFB,
-  ); // Secondary Panel / Light Grey-Blue
+  ); // Secondary Panel / Light Grey-Blue (Light Mode)
+
+  static const Color darkModeBackground = Color(0xFF0F172A); // Deep Blue/Grey
+  static const Color darkModeSurface = Color(0xFF1E293B); // Lighter Blue/Grey
 
   // Text Colors
   static const Color slate900 = Color(0xFF376184); // Headings (Primary)
@@ -25,6 +28,9 @@ class AppConstants {
   static const Color slate800 = Color(0xFF6B6C6E); // Body Text (Dark Neutral)
   static const Color slate500 = Color(0xFF9CA3AF); // Muted Text
   static const Color slate400 = Color(0xFF94A3B8);
+
+  static const Color darkModeTextPrimary = Color(0xFFFFFFFF); // White
+  static const Color darkModeTextSecondary = Color(0xFF94A3B8); // Light Grey
 
   // Shadows
   static List<BoxShadow> defaultShadow = [

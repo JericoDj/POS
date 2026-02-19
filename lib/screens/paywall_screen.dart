@@ -38,24 +38,24 @@ class _PaywallScreenState extends State<PaywallScreen> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.read<SubscriptionProvider>().restorePurchases();
-            },
-            child: const Text("Restore"),
-          ),
-          // Debug option to reset
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Reset to Free (Debug)',
-            onPressed: () {
-              context.read<SubscriptionProvider>().setTier(
-                SubscriptionTier.free,
-              );
-            },
-          ),
-        ],
+        // actions: [
+        //   TextButton(
+        //     onPressed: () {
+        //       context.read<SubscriptionProvider>().restorePurchases();
+        //     },
+        //     child: const Text("Restore"),
+        //   ),
+        //   // Debug option to reset
+        //   IconButton(
+        //     icon: const Icon(Icons.refresh),
+        //     tooltip: 'Reset to Free (Debug)',
+        //     onPressed: () {
+        //       context.read<SubscriptionProvider>().setTier(
+        //         SubscriptionTier.free,
+        //       );
+        //     },
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

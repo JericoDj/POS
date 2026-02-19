@@ -179,7 +179,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       child: Text(
                         (business?.name.isNotEmpty == true
                                 ? business!.name
-                                : AppConstants.appName)[0]
+                                : "No Organization")[0]
                             .toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
@@ -194,7 +194,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            business?.name ?? AppConstants.appName,
+                            business?.name ?? "No Organization",
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -202,13 +202,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const Text(
-                            'Tap to switch',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppConstants.slate500,
-                            ),
-                          ),
+                          // const Text(
+                          //   'Tap to switch',
+                          //   style: TextStyle(
+                          //     fontSize: 12,
+                          //     color: AppConstants.slate500,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
@@ -269,7 +269,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                               .isNotEmpty ==
                                           true
                                       ? businessProvider.currentBusiness!.name
-                                      : AppConstants.appName)[0]
+                                      : "No Organization")[0]
                                   .toUpperCase(),
                               style: const TextStyle(
                                 color: Colors.white,
@@ -281,7 +281,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           Expanded(
                             child: Text(
                               businessProvider.currentBusiness?.name ??
-                                  AppConstants.appName,
+                                  "No Organization",
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,

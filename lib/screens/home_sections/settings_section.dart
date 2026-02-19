@@ -3,8 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/subscription_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 
 import '../paywall_screen.dart';
+import '../settings/change_password_screen.dart';
 
 class SettingsSection extends StatefulWidget {
   const SettingsSection({super.key});
@@ -14,11 +17,9 @@ class SettingsSection extends StatefulWidget {
 }
 
 class _SettingsSectionState extends State<SettingsSection> {
-  bool _isDarkMode = false;
-  bool _notificationsEnabled = true;
-
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       color: AppConstants.backgroundLight,
       padding: const EdgeInsets.all(32),
@@ -107,15 +108,22 @@ class _SettingsSectionState extends State<SettingsSection> {
                       icon: Icons.lock_outline,
                       title: 'Change Password',
                       subtitle: 'Update your security credentials',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChangePasswordScreen(),
+                          ),
+                        );
+                      },
                     ),
-                    const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                    _buildListTile(
-                      icon: Icons.notifications_outlined,
-                      title: 'Notifications',
-                      subtitle: 'Manage your alert preferences',
-                      onTap: () {},
-                    ),
+                    // const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    // _buildListTile(
+                    //   icon: Icons.notifications_outlined,
+                    //   title: 'Notifications',
+                    //   subtitle: 'Manage your alert preferences',
+                    //   onTap: () {},
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 32),
@@ -134,21 +142,21 @@ class _SettingsSectionState extends State<SettingsSection> {
                 _buildSectionTitle('App Settings'),
                 _buildSettingsCard(
                   children: [
-                    SwitchListTile(
-                      value: _isDarkMode,
-                      onChanged: (value) => setState(() => _isDarkMode = value),
-                      title: const Text('Dark Mode'),
-                      secondary: const Icon(
-                        Icons.dark_mode_outlined,
-                        color: Color(0xFF64748B),
-                      ),
-                      activeColor: AppConstants.primaryColor,
-                    ),
+                    // SwitchListTile(
+                    //   value: themeProvider.isDarkMode,
+                    //   onChanged: (value) => themeProvider.toggleTheme(value),
+                    //   title: const Text('Dark Mode'),
+                    //   secondary: const Icon(
+                    //     Icons.dark_mode_outlined,
+                    //     color: Color(0xFF64748B),
+                    //   ),
+                    //   activeColor: AppConstants.primaryColor,
+                    // ),
                     const Divider(height: 1, color: Color(0xFFF1F5F9)),
                     SwitchListTile(
-                      value: _notificationsEnabled,
+                      value: themeProvider.notificationsEnabled,
                       onChanged: (value) =>
-                          setState(() => _notificationsEnabled = value),
+                          themeProvider.toggleNotifications(value),
                       title: const Text('Notifications'),
                       subtitle: const Text('Receive alerts for new orders'),
                       secondary: const Icon(
@@ -156,6 +164,48 @@ class _SettingsSectionState extends State<SettingsSection> {
                         color: Color(0xFF64748B),
                       ),
                       activeColor: AppConstants.primaryColor,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                _buildSettingsCard(
+                  children: [
+                    _buildListTile(
+                      icon: Icons.logout,
+                      title: 'Logout',
+                      subtitle: 'Sign out of your account',
+                      iconColor: Colors.red,
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Logout'),
+                            content: const Text(
+                              'Are you sure you want to sign out?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Logout'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true && context.mounted) {
+                          await context.read<AuthProvider>().logout();
+                          if (context.mounted) {
+                            context.go('/login');
+                          }
+                        }
+                      },
                     ),
                   ],
                 ),

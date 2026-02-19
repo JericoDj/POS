@@ -50,5 +50,7 @@
 		<string>https</string>
 		<string>http</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open to automatically detect your country code for phone number entry.</string>
 </dict>
 </plist>

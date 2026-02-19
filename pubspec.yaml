@@ -45,6 +45,9 @@ dependencies:
   url_launcher: ^6.3.2
 
   in_app_purchase: ^3.2.3
+  intl_phone_number_input: ^0.7.5
+  geolocator: ^14.0.2
+  geocoding: ^4.0.0
 
 
 dev_dependencies:

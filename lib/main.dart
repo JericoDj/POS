@@ -8,9 +8,12 @@ import 'providers/category_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/sales_provider.dart';
 import 'providers/subscription_provider.dart';
+import 'providers/theme_provider.dart';
 import 'constants/app_constants.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'package:go_router/go_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +30,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..init()),
         ChangeNotifierProxyProvider<AuthProvider, BusinessProvider>(
           create: (_) => BusinessProvider(),
           update: (context, auth, business) => business!..update(auth.token),
@@ -68,24 +72,39 @@ class MyApp extends StatelessWidget {
               subscription!..update(business, auth),
         ),
       ],
-      child: Builder(
-        builder: (context) {
-          final authProvider = Provider.of<AuthProvider>(
-            context,
-            listen: false,
-          );
-          return MaterialApp.router(
-            title: AppConstants.appName,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: AppConstants.primaryColor,
-              ),
-              useMaterial3: true,
-            ),
-            routerConfig: createRouter(authProvider),
-          );
-        },
-      ),
+      child: const AppContent(),
+    );
+  }
+}
+
+class AppContent extends StatefulWidget {
+  const AppContent({super.key});
+
+  @override
+  State<AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends State<AppContent> {
+  GoRouter? _router;
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _router ??= createRouter(authProvider);
+
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp.router(
+          title: AppConstants.appName,
+          theme: themeProvider.lightTheme,
+          darkTheme: themeProvider.darkTheme,
+          themeMode: themeProvider.isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          routerConfig: _router,
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }
