@@ -7,14 +7,29 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppConstants.primaryColor,
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.point_of_sale, size: 80, color: Colors.white),
-            const SizedBox(height: 24),
-            const CircularProgressIndicator(color: Colors.white),
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset('assets/images/logo.png', fit: BoxFit.cover),
+            ),
+            const SizedBox(height: 32),
+            const CircularProgressIndicator(color: AppConstants.primaryColor),
           ],
         ),
       ),

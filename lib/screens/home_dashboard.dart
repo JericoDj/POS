@@ -172,21 +172,26 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppConstants.primaryColor,
+                        color: business?.name.isNotEmpty == true
+                            ? AppConstants.primaryColor
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        (business?.name.isNotEmpty == true
-                                ? business!.name
-                                : "No Organization")[0]
-                            .toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: business?.name.isNotEmpty == true
+                          ? Text(
+                              business!.name[0].toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            )
+                          : Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -258,24 +263,36 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: AppConstants.primaryColor,
+                              color:
+                                  businessProvider
+                                          .currentBusiness
+                                          ?.name
+                                          .isNotEmpty ==
+                                      true
+                                  ? AppConstants.primaryColor
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             alignment: Alignment.center,
-                            child: Text(
-                              (businessProvider
-                                              .currentBusiness
-                                              ?.name
-                                              .isNotEmpty ==
-                                          true
-                                      ? businessProvider.currentBusiness!.name
-                                      : "No Organization")[0]
-                                  .toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child:
+                                businessProvider
+                                        .currentBusiness
+                                        ?.name
+                                        .isNotEmpty ==
+                                    true
+                                ? Text(
+                                    businessProvider.currentBusiness!.name[0]
+                                        .toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : Image.asset(
+                                    'assets/images/logo.png',
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(

@@ -75,6 +75,8 @@ class _InventorySectionState extends State<InventorySection> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // _buildHeaderAction(Icons.download, 'Export', () {}),
                     // const SizedBox(width: 8),
@@ -82,21 +84,35 @@ class _InventorySectionState extends State<InventorySection> {
                       _showManageCategoriesDialog(context);
                     }),
                     const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: () => _showAddProductDialog(context),
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Add'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppConstants.primaryColor,
-                        foregroundColor: Colors.white,
+                    GestureDetector(
+                      onTap: () => _showAddProductDialog(context),
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
                         ),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
+                          color: AppConstants.primaryColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        elevation: 0,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.add,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Add Product',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -136,21 +152,35 @@ class _InventorySectionState extends State<InventorySection> {
                     _showManageCategoriesDialog(context);
                   }),
                   const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddProductDialog(context),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add Product'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppConstants.primaryColor,
-                      foregroundColor: Colors.white,
+                  GestureDetector(
+                    onTap: () => _showAddProductDialog(context),
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 16,
                       ),
-                      shape: RoundedRectangleBorder(
+                      decoration: BoxDecoration(
+                        color: AppConstants.primaryColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      elevation: 0,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.add,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Add Product',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1102,17 +1132,13 @@ class _ManageCategoriesDialogState extends State<ManageCategoriesDialog> {
                                   IconButton(
                                     icon: const Icon(Icons.edit, size: 20),
                                     color: AppConstants.slate500,
-                                    onPressed:
-                                        () => _showCategoryDialog(
-                                          context,
-                                          category: category,
-                                        ),
+                                    onPressed: () => _showCategoryDialog(
+                                      context,
+                                      category: category,
+                                    ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      size: 20,
-                                    ),
+                                    icon: const Icon(Icons.delete, size: 20),
                                     color: Colors.red,
                                     onPressed: () => _confirmDelete(
                                       context,

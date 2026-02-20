@@ -149,25 +149,25 @@ class _SignupScreenState extends State<SignupScreen> {
                           children: [
                             Container(
                               width: AppDimensions.w(
-                                3,
-                              ).clamp(32.0, 48.0), // Responsive icon size
-                              height: AppDimensions.w(3).clamp(32.0, 48.0),
+                                4,
+                              ).clamp(48.0, 64.0), // Responsive icon size
+                              height: AppDimensions.w(4).clamp(48.0, 64.0),
                               decoration: BoxDecoration(
-                                color: AppConstants.primaryColor,
                                 borderRadius: BorderRadius.circular(
                                   AppDimensions.radiusS,
                                 ),
                               ),
-                              child: const Icon(
-                                Icons.point_of_sale,
-                                color: Colors.white,
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                'assets/images/logo.png',
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 12),
                             const Text(
-                              "J's POS",
+                              "Leos POS",
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
@@ -310,15 +310,15 @@ class _SignupScreenState extends State<SignupScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
-                                  width: 40,
-                                  height: 40,
+                                  width: 48,
+                                  height: 48,
                                   decoration: BoxDecoration(
-                                    color: AppConstants.primaryColor,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(
-                                    Icons.point_of_sale,
-                                    color: Colors.white,
+                                  clipBehavior: Clip.antiAlias,
+                                  child: Image.asset(
+                                    'assets/images/logo.png',
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                                 const SizedBox(width: 8),

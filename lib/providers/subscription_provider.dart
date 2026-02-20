@@ -216,16 +216,15 @@ class SubscriptionProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  // Method to set tier manually (for testing or other logic)
   void setTier(SubscriptionTier tier) {
     if (_businessProvider != null) {
       if (tier == SubscriptionTier.free) {
-        _businessProvider!.updateCurrentBusinessSubscription({
+        _businessProvider!.updateSubscriptionLocally({
           'tier': 'free',
           'status': 'active',
         });
       } else if (tier == SubscriptionTier.starter) {
-        _businessProvider!.updateCurrentBusinessSubscription({
+        _businessProvider!.updateSubscriptionLocally({
           'tier': 'starter',
           'status': 'active',
         });
